@@ -1,0 +1,29 @@
+version: "1.0"
+
+# 1. Setup: Build the images and ensure a clean slate
+setup:
+  - docker-compose down -v
+  - docker-compose build
+
+# 2. Start: Launch the infrastructure
+start:
+  - docker-compose up -d
+
+# 3. Test: Functional validation of business logic
+test:
+  - name: Test Idempotency
+    command: |
+      curl -i -H "Idempotency-Key: TEST_KEY_123" -H "Content-Type: application/json" -d '{"amount": 50, "method": "card"}' http://localhost:8000/api/v1/payments
+  - name: Test Refund Validation
+    command: |
+      curl -i -X POST -H "Content-Type: application/json" -d '{"amount": 9999, "reason": "too_high"}' http://localhost:8000/api/v1/payments/pay_9ad5905939d048d0/refunds
+
+# 4. Verify: Automated health checks
+verify:
+  api_health: "http://localhost:8000/api/v1/health"
+  merchant_stats: "http://localhost:8000/api/v1/merchants/550e8400-e29b-41d4-a716-446655440000/stats"
+  db_status: "docker exec gateway_db pg_isready -U gateway_user"
+
+# 5. Shutdown: Cleanup
+shutdown:
+  - docker-compose down -v

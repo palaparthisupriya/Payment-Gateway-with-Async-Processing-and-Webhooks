@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Resilient Payment Gateway API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/payments": {
+      "post": {
+        "summary": "Create a new payment",
+        "parameters": [{ "name": "Idempotency-Key", "in": "header", "required": true, "schema": { "type": "string" } }],
+        "responses": { "201": { "description": "Payment Created" } }
+      }
+    },
+    "/api/v1/merchants/{merchantId}/stats": {
+      "get": {
+        "summary": "Get merchant financial statistics",
+        "parameters": [{ "name": "merchantId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Success" } }
+      }
+    }
+  }
+}

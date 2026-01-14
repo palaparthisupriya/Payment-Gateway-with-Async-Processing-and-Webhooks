@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Merchant Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; }
+        .stats-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 350px; }
+        h1 { color: #333; }
+        .stat-item { font-size: 1.2rem; margin: 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .value { font-weight: bold; color: #28a745; float: right; }
+        .footer { font-size: 0.8rem; color: #777; margin-top: 10px; text-align: center; }
+        button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; background: #6c757d; color: white; border: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Merchant Sales Dashboard</h1>
+    <div class="stats-box" data-test-id="stats-container">
+        <p class="stat-item">Total Sales: <span class="value">$<span id="sales" data-test-id="total-sales">0</span></span></p>
+        <p class="stat-item">Net Revenue: <span class="value">$<span id="revenue" data-test-id="net-revenue">0</span></span></p>
+        <button onclick="fetchStats()">Refresh Now</button>
+        <div class="footer" id="last-update">Last updated: Never</div>
+    </div>
+
+    <script>
+        const MERCHANT_ID = '550e8400-e29b-41d4-a716-446655440000';
+        // UPDATED URL: Changed from /api/v1/ to /api/ to match Controller
+        const STATS_URL = `http://localhost:8000/api/merchants/${MERCHANT_ID}/stats`;
+
+        function fetchStats() {
+            fetch(STATS_URL)
+                .then(r => {
+                    if (!r.ok) throw new Error("API Path not found");
+                    return r.json();
+                })
+                .then(data => {
+                    // Update the UI with the numbers from the database
+                    document.getElementById('sales').innerText = data.total_sales.toLocaleString();
+                    document.getElementById('revenue').innerText = data.net_revenue.toLocaleString();
+                    document.getElementById('last-update').innerText = "Last updated: " + new Date().toLocaleTimeString();
+                })
+                .catch(err => {
+                    console.error("Dashboard Error:", err);
+                    document.getElementById('last-update').innerText = "Status: API Connection Error";
+                });
+        }
+
+        // Fetch immediately and then every 5 seconds for a snappy demo
+        fetchStats();
+        setInterval(fetchStats, 5000);
+    </script>
+</body>
+</html>
